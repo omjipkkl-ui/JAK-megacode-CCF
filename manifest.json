@@ -1,7 +1,7 @@
 {
-  "name": "Megacode Timers & CCF",
-  "short_name": "Megacode CCF",
-  "description": "ACLS megacode timers, CCF, log sheet and prompts. JIPMER Karaikal BLS & ACLS training.",
+  "name": "JAK CCF Cal",
+  "short_name": "JAK CCF Cal",
+  "description": "Megacode cycle log and CCF calculator: timers, rhythm prompts, drug log and post-ROSC checklist. JIPMER Karaikal, Dept. of Anaesthesiology.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
