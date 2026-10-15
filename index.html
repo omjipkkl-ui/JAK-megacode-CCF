@@ -68,9 +68,19 @@ input.grp{width:100%;font:inherit;color:var(--ink);background:var(--panel);borde
 .toggle{display:block;width:100%;border-radius:16px;padding:18px;font-weight:700;font-size:22px;color:#fff;margin-bottom:10px;min-height:72px}
 .toggle.t-on{background:var(--off)} .toggle.t-off{background:var(--on)} .toggle:disabled{background:var(--muted);opacity:.6}
 .flash{animation:fl 1s steps(2,start) infinite}@keyframes fl{to{visibility:hidden}}
+.toggle.urge{animation:urge .8s ease-in-out infinite;outline:4px solid var(--on);outline-offset:2px}
+@keyframes urge{0%,100%{background:var(--on);color:#fff;transform:scale(1)}50%{background:var(--amber);color:#fff;transform:scale(1.03)}}
+@media (prefers-reduced-motion:reduce){.toggle.urge{animation:none;background:var(--amber)}}
 @media (prefers-reduced-motion:reduce){.flash{animation:none}}
 
 .sugg{margin-bottom:10px}
+.ctrlrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.ctrlrow .toggle{margin:0;font-size:19px;min-height:84px;text-align:center}
+.rbox{display:flex;flex-direction:column;gap:8px}
+.rb{flex:1;border-radius:16px;font-weight:700;font-size:19px;color:#fff;min-height:38px;padding:8px;line-height:1.15}
+.rb small{display:block;font-size:12.5px;font-weight:400;opacity:.92}
+.rb-an{background:var(--navy);color:var(--panel)} .rb-due{background:var(--off)} .rb-ho{background:var(--amber);color:#fff}
+.rb-s{background:var(--off)} .rb-n{background:var(--violet)} .rb:disabled{background:var(--muted);opacity:.6}
 .cbtns{display:flex;flex-direction:column;gap:8px}
 .bigbtn.rosc{background:var(--on)}
 .ivrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -92,7 +102,7 @@ input.grp{width:100%;font:inherit;color:var(--ink);background:var(--panel);borde
 .pi.on{background:var(--on-soft);border-color:var(--on)} .pi.on .bx{background:var(--on)}
 .pi .tx{flex:1}.pi .tx small{display:block;color:var(--muted)}
 .pi .tm{font-family:var(--num);font-weight:600;color:var(--on)}
-.path{font-size:14px;font-weight:700;margin:0 2px 8px;color:var(--muted)}
+.path{font-size:14px;font-weight:700;margin:0 2px 8px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .path.shk{color:var(--off)} .path.nsh{color:var(--navy)}
 .s-item{display:flex;align-items:center;gap:10px;border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--violet-soft);border:1.5px solid var(--violet)}
 .s-item .t{flex:1;font-weight:700;color:var(--violet)}
@@ -110,6 +120,11 @@ input.grp{width:100%;font:inherit;color:var(--ink);background:var(--panel);borde
 .give{border-radius:12px;padding:12px 14px;font-weight:700;color:#fff;min-height:52px;min-width:108px}
 .g-shock{background:var(--off)} .g-adr{background:var(--amber)} .g-aa{background:var(--violet)}
 .give:disabled{opacity:.4;cursor:not-allowed}
+.give.urge{animation:giveurge .8s ease-in-out infinite;outline:3px solid var(--ink);outline-offset:3px}
+@keyframes giveurge{0%,100%{filter:none;transform:scale(1)}50%{filter:brightness(1.35) saturate(1.2);transform:scale(1.07)}}
+.dt.hl{border:2px solid var(--off);background:var(--off-soft)}
+.seg button.urge{animation:giveurge .8s ease-in-out infinite;background:var(--amber);color:#fff}
+@media (prefers-reduced-motion:reduce){.give.urge,.seg button.urge{animation:none}}
 .dt.due .n{color:var(--amber)} .dt.over .n{color:var(--off)}
 select{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px;margin-top:4px;max-width:100%}
 .energy{width:60px;font:inherit;font-size:14px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:5px 6px;margin-top:4px}
@@ -158,9 +173,8 @@ tr.r-rosc td.ev,tr.r-post td.ev{color:var(--on);font-weight:700}
     <div class="card" id="cComp"><div class="k">Compression time</div><div class="n" id="vComp">0:00</div><div class="sub" id="sComp">total</div></div>
     <div class="card" id="cPause"><div class="k">Pause time</div><div class="n" id="vPause">0 s</div><div class="sub" id="sPause">0 pauses · total 0 s</div></div>
   </div>
-  <button class="toggle" id="bToggle" disabled>Pause compressions</button>
+  <div class="ctrlrow"><button class="toggle" id="bToggle" disabled>Pause compressions</button><div class="rbox" id="rbox" aria-live="assertive"></div></div>
 
-  <div class="card ivrow"><div><div class="name">IV / IO access</div><div class="k" id="ivK">Not in place</div></div><div class="seg"><button id="ivNo">No</button><button id="ivYes">Yes, in place</button></div></div>
   <button class="bigbtn rosc" id="bPost" style="display:none;width:100%;margin-bottom:10px">Open post-ROSC checklist (A B C D)</button>
   <div class="path" id="path"></div>
   <div class="sugg" id="sugg" aria-live="polite"></div>
@@ -170,6 +184,8 @@ tr.r-rosc td.ev,tr.r-post td.ev{color:var(--on);font-weight:700}
       <div class="meta"><span id="mShock">0 given</span> · <input class="energy" id="energy" type="number" inputmode="numeric" value="200" aria-label="Energy in joules"> J</div></div>
     <button class="give g-shock" id="gShock" disabled>Give shock</button>
   </div>
+  <div class="sugg" id="suggS" aria-live="polite"></div>
+  <div class="card ivrow"><div><div class="name">IV / IO access</div><div class="k" id="ivK">Not in place</div></div><div class="seg"><button id="ivNo">No</button><button id="ivYes">Yes, in place</button></div></div>
   <div class="card dt" id="dAdr">
     <div class="info"><div class="name">Adrenaline 1 mg IV/IO</div><div class="n" id="vAdr">—</div><div class="meta" id="mAdr">0 given · every 3–5 min</div></div>
     <button class="give g-adr" id="gAdr" disabled>Give drug</button>
@@ -212,7 +228,7 @@ tr.r-rosc td.ev,tr.r-post td.ev{color:var(--on);font-weight:700}
 (function(){
 const KEY='megacode-timers-v2';
 const $=id=>document.getElementById(id);
-const fresh=()=>({phase:'idle',grp:'',start:null,end:null,on:false,last:null,lastResume:null,comp:0,pauses:[],log:[],shocks:[],adr:[],aa:[],done:{},skip:{},prompted:{},rosc:null,post:{},neuro:null,neuroT:null});
+const fresh=()=>({phase:'idle',grp:'',start:null,end:null,on:false,last:null,lastResume:null,comp:0,pauses:[],log:[],shocks:[],adr:[],aa:[],done:{},skip:{},prompted:{},rosc:null,post:{},rstage:null,rcount:0,limb:null,limbT:null,neuro:null,neuroT:null});
 let S;try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const now=()=>Date.now();
@@ -236,7 +252,7 @@ function log(ev,cls){const t=now();const c=ccf();S.log.push({t,ct:S.start?t-S.st
 
 function arm(btn,label,armLabel,fn){let h=null;btn.addEventListener('click',()=>{if(h){clearTimeout(h);h=null;btn.textContent=label;fn()}else{if(btn.dataset.pre&&!window[btn.dataset.pre]())return;btn.textContent=armLabel;h=setTimeout(()=>{h=null;btn.textContent=label;render()},3000)}})}
 
-function startCode(){audio();awake();const t=now();const iv=!!S.done.ivio;Object.assign(S,fresh(),{phase:'run',grp:$('grp').value.trim(),start:t,on:true,last:t});log('Code started · compressions on');if(iv){S.done.ivio=1;log('IV/IO already in place')}render()}
+function startCode(){audio();awake();const t=now();const iv=!!S.done.ivio;Object.assign(S,fresh(),{phase:'run',grp:$('grp').value.trim(),start:t,on:true,last:t});log('Code started · compressions on');S.rstage='ask';S.rcount=1;if(iv){S.done.ivio=1;log('IV/IO already in place')}render()}
 function endCode(rosc){const t=now();if(S.on)S.comp+=t-S.last;else S.pauses.push(t-S.last);S.on=false;S.end=t;S.phase='end';if(rosc){S.rosc=t;log('ROSC obtained · code stopped · final CCF '+Math.round(ccf())+'%','r-rosc')}else log('Code ended · final CCF '+Math.round(ccf())+'%');try{wake&&wake.release()}catch(e){}render();renderSummary();renderPost()}
 let codeArm=null;
 $('bCode').addEventListener('click',()=>{
@@ -263,47 +279,43 @@ $('postModal').addEventListener('click',e=>{if(e.target.id==='postModal')$('post
 $('ivYes').addEventListener('click',()=>setIV(true));
 $('ivNo').addEventListener('click',()=>setIV(false));
 const POST=[
- ['A','Airway',[['a1','Secure advanced airway','Confirm placement with waveform capnography']]],
- ['B','Breathing',[['b1','SpO₂ 92–98%','Titrate FiO₂; avoid hypoxia and hyperoxia'],['b2','EtCO₂ 35–45 mmHg','PaCO₂ 35–45 · about 10 breaths/min, avoid hyperventilation']]],
- ['C','Circulation',[['c1','MAP ≥ 65 mmHg','SBP ≥ 90 · fluids, vasopressor infusion']]],
- ['D','Diagnostics',[['d1','12-lead ECG','Look for STEMI'],['d2','Ultrasound (POCUS / echo)','Function, effusion, RV strain, volume'],['d3','CT','Head / chest, as indicated'],['d4','Coronary angiography','STEMI or suspected cardiac cause']]]
+ ['A','Airway: manage airway',[['a1','Assess airway; place or exchange advanced airway','ETT or supraglottic device, as necessary'],['a2','Confirm airway placement','Waveform capnography or capnometry']]],
+ ['B','Breathing: manage oxygenation and ventilation',[['b0','100% FiO₂ until SpO₂ / PaO₂ measured reliably',''],['b1','SpO₂ 90–98%','PaO₂ 60–105 mmHg · titrate FiO₂'],['b2','PCO₂ 35–45 mmHg','Adjust minute ventilation (unless severe acidaemia)']]],
+ ['C','Circulation: manage haemodynamics',[['c1','MAP ≥ 65 mmHg','Vasopressors and/or fluid resuscitation']]],
+ ['D','Diagnostics: early diagnostic testing',[['d1','12-lead ECG','Ischaemia or arrhythmia'],['d2','Diagnostic imaging','CT head / chest / abdomen / pelvis and/or POCUS / echo']]],
+ ['E','Etiology: treat arrest causes and complications',[['e1','Consider 5 Hs and 5 Ts','Cause of arrest and injuries from resuscitation'],['e2','Consider emergency coronary angiography and/or MCS','Persistent ST elevation, cardiogenic shock, recurrent or refractory VT/VF, severe ischaemia']]],
+ ['F','Follow commands: neurological assessment',[['e3','Assess off sedation and neuromuscular blockade','If able']]]
 ];
+const CRIT='PaO₂ 60–105, PCO₂ 35–45, MAP ≥ 65 · consider antibiotics';
+const GLY=[['g1','Glucose 70–180 mg/dL','Avoid hypoglycaemia (< 70) and hyperglycaemia (> 180)']];
+const NEURO_NO=[['n1','Ongoing critical care',CRIT],['n2','Deliberate temperature control','Goal 32–37.5 °C, start as soon as possible'],['n3','EEG','Evaluate for seizure'],['n4','Coronary angiography','When appropriate'],['n5','Multimodal prognostication','Appropriately timed: ≥ 72 h after ROSC or normothermia']];
+const NEURO_YES=[['y1','Ongoing critical care',CRIT],['y2','Coronary angiography','When appropriate']];
+function grpHead(t,big){const h=document.createElement('div');h.className='L';h.textContent=t;if(big){h.style.fontSize='15px';h.style.color='var(--muted)';h.style.fontFamily='var(--txt)';h.style.marginTop='14px'}return h}
 function renderPost(){
-  $('bPost').style.display=S.rosc?'block':'none';if(!S.rosc){$('postModal').classList.remove('open');return}$('roscK').textContent='ROSC at code time '+fmt(S.rosc-S.start)+' ('+clock(S.rosc)+'). Tick each step as it is done.';
+  $('bPost').style.display=S.rosc?'block':'none';if(!S.rosc){$('postModal').classList.remove('open');return}$('roscK').textContent='ROSC at code time '+fmt(S.rosc-S.start)+' ('+clock(S.rosc)+'). AHA 2025 adult post-cardiac arrest care: tick each step as it is done.';
   const L=$('postList');L.innerHTML='';
-  POST.forEach(([ltr,name,items])=>{const g=document.createElement('div');g.className='pgrp';const h=document.createElement('div');h.className='L';h.textContent=ltr+'  '+name;g.append(h);
-    items.forEach(([id,t,sub])=>{const b=document.createElement('button');const on=S.post[id];b.className='pi'+(on?' on':'');
-      const bx=document.createElement('span');bx.className='bx';bx.textContent=on?'✓':'';const tx=document.createElement('span');tx.className='tx';tx.textContent=t;const sm=document.createElement('small');sm.textContent=sub;tx.append(sm);
-      const tm=document.createElement('span');tm.className='tm';tm.textContent=on?'+'+fmt(on-S.rosc):'';b.append(bx,tx,tm);
-      b.onclick=()=>{if(S.post[id]){delete S.post[id];log('Post-ROSC '+ltr+': '+t+' (unticked)','')}else{S.post[id]=now();log('Post-ROSC '+ltr+': '+t,'r-post')}save();renderPost();renderSummary()};g.append(b)});
-    L.append(g)});
-  // E: neuro check
-  const ng=document.createElement('div');ng.className='pgrp';const nh=document.createElement('div');nh.className='L';nh.textContent='E  Neuro check';ng.append(nh);
+  POST.forEach(([n,name,items],i)=>{if(i===0)L.append(grpHead('Initial stabilisation after ROSC',true));if(i===4)L.append(grpHead('Continued management',true));
+    const g=document.createElement('div');g.className='pgrp';g.append(grpHead(n+' – '+name));items.forEach(it=>g.append(postItem(it)));L.append(g)});
+  const ng=document.createElement('div');ng.className='pgrp';
   const q=document.createElement('div');q.className='pi';q.style.cursor='default';
-  const qt=document.createElement('span');qt.className='tx';qt.textContent='Responds to commands?';const qs=document.createElement('small');qs.textContent=S.neuro?('Answered '+S.neuro.toUpperCase()+' at +'+fmt(S.neuroT-S.rosc)):'Tap Yes or No';qt.append(qs);
+  const qt=document.createElement('span');qt.className='tx';qt.textContent='Patient follows commands?';const qs=document.createElement('small');qs.textContent=S.neuro?('Answered at +'+fmt(S.neuroT-S.rosc)):'Off sedation and neuromuscular blockade';qt.append(qs);
   const seg=document.createElement('div');seg.className='seg';
-  [['yes','Yes'],['no','No']].forEach(([v,lab])=>{const b=document.createElement('button');b.textContent=lab;if(S.neuro===v)b.className=v==='yes'?'sel-yes':'sel-no';
-    b.onclick=()=>{if(S.neuro===v)return;S.neuro=v;S.neuroT=now();log('Neuro: responds to commands · '+lab,v==='no'?'r-bad':'r-post');save();renderPost();renderSummary()};seg.append(b)});
+  [['yes','Yes'],['no','No or unsure']].forEach(([v,lab])=>{const b=document.createElement('button');b.textContent=lab;if(S.neuro===v)b.className=v==='yes'?'sel-yes':'sel-no';
+    b.onclick=()=>{if(S.neuro===v)return;S.neuro=v;S.neuroT=now();log('Follows commands: '+lab,v==='no'?'r-bad':'r-post');save();renderPost();renderSummary()};seg.append(b)});
   q.append(qt,seg);ng.append(q);L.append(ng);
-  if(S.neuro){
-    const items=[];
-    if(S.neuro==='no')items.push(['e1','Temperature control (TTM)','Comatose: 32–37.5 °C per protocol; prevent fever'],['e2','EEG','Detect seizures / non-convulsive status']);
-    items.push(['f1','Glycaemic control','Avoid hypo- and hyperglycaemia'],['f2','Consider 5 Hs and 5 Ts again','Hypovolaemia, Hypoxia, H⁺, K⁺, Hypothermia · Tension pneumothorax, Tamponade, Toxins, Thrombosis ×2']);
-    const fg=document.createElement('div');fg.className='pgrp';const fh=document.createElement('div');fh.className='L';fh.textContent=S.neuro==='no'?'Not following commands: next steps':'Ongoing care';fg.append(fh);
-    items.forEach(it=>fg.append(postItem('E',it)));L.append(fg);
-  }
+  if(S.neuro){const fg=document.createElement('div');fg.className='pgrp';fg.append(grpHead(S.neuro==='no'?'No or unsure: next steps':'Yes: next steps'));(S.neuro==='no'?NEURO_NO:NEURO_YES).forEach(it=>fg.append(postItem(it)));L.append(fg)}
+  const gg=document.createElement('div');gg.className='pgrp';gg.append(grpHead('G – Glycaemic control'));GLY.forEach(it=>gg.append(postItem(it)));L.append(gg);
 }
-function postItem(ltr,[id,t,sub]){const b=document.createElement('button');const on=S.post[id];b.className='pi'+(on?' on':'');
-  const bx=document.createElement('span');bx.className='bx';bx.textContent=on?'✓':'';const tx=document.createElement('span');tx.className='tx';tx.textContent=t;const sm=document.createElement('small');sm.textContent=sub;tx.append(sm);
+function postItem([id,t,sub]){const b=document.createElement('button');const on=S.post[id];b.className='pi'+(on?' on':'');
+  const bx=document.createElement('span');bx.className='bx';bx.textContent=on?'✓':'';const tx=document.createElement('span');tx.className='tx';tx.textContent=t;if(sub){const sm=document.createElement('small');sm.textContent=sub;tx.append(sm)}
   const tm=document.createElement('span');tm.className='tm';tm.textContent=on?'+'+fmt(on-S.rosc):'';b.append(bx,tx,tm);
   b.onclick=()=>{if(S.post[id]){delete S.post[id];log('Post-ROSC: '+t+' (unticked)','')}else{S.post[id]=now();log('Post-ROSC: '+t,'r-post')}save();renderPost();renderSummary()};return b}
-const EXTRA=[['E',[['e1','Temperature control (TTM)'],['e2','EEG'],['f1','Glycaemic control'],['f2','5 Hs & 5 Ts reviewed']]]];
-$('bToggle').addEventListener('click',()=>{
-  if(S.phase!=='run')return;audio();const t=now();
-  if(S.on){S.comp+=t-S.last;S.on=false;S.last=t;buzz(40);log('Pause started','')}
-  else{const d=t-S.last;S.pauses.push(d);S.on=true;S.last=t;S.lastResume=t;buzz(40);log('Compressions resumed · pause '+sec(d)+' s'+(d>10000?' (over 10 s)':''),d>10000?'r-bad':'')}
-  save();render();
-});
+const EXTRA=[['Follows commands: no or unsure',NEURO_NO.map(x=>[x[0],x[1]])],['Follows commands: yes',NEURO_YES.map(x=>[x[0],x[1]])],['G',GLY.map(x=>[x[0],x[1]])]];
+function pauseNow(reason){if(S.phase!=='run'||!S.on)return;audio();const t=now();S.comp+=t-S.last;S.on=false;S.last=t;buzz(40);log('Pause started'+(reason?' · '+reason:''),'');if(S.rstage==='pause')S.rstage='choose';save();shown='';render()}
+function resumeNow(){if(S.phase!=='run'||S.on)return;audio();const t=now();const d=t-S.last;S.pauses.push(d);S.on=true;S.last=t;S.lastResume=t;buzz(40);log('Compressions resumed · pause '+sec(d)+' s'+(d>10000?' (over 10 s)':''),d>10000?'r-bad':'');save();shown='';render()}
+$('bToggle').addEventListener('click',()=>{if(S.phase!=='run')return;if(S.on)pauseNow();else resumeNow()});
+function analyse(){if(S.phase!=='run')return;if(!S.rstage)S.rcount++;S.rstage=S.on?'pause':'choose';log(S.on?'Analyse rhythm '+S.rcount+': hands off requested':'Analyse rhythm '+S.rcount,'');save();shown='';render()}
+function chooseRhythm(shk){S.limb=shk?'s':'n';S.limbT=now();S.rstage=null;log('Rhythm analysis '+S.rcount+': '+(shk?'Shockable (VF / pVT)':'Non-shockable (PEA / asystole)'),shk?'r-shock':'');save();shown='';render()}
 function give(kind){
   if(S.phase!=='run')return toast('Start the code first');audio();const t=now();
   if(kind==='shock'){S.shocks.push(t);const j=parseInt($('energy').value,10);log('Shock #'+S.shocks.length+(j?' · '+j+' J':''),'r-shock')}
@@ -322,28 +334,27 @@ $('bUndo').addEventListener('click',()=>{
 });
 $('grp').addEventListener('input',e=>{S.grp=e.target.value;save()});
 let rstH=null;
-$('bReset').addEventListener('click',()=>{const b=$('bReset');if(!rstH){b.textContent='Tap again to reset';rstH=setTimeout(()=>{rstH=null;b.textContent='Reset'},3000);return}clearTimeout(rstH);rstH=null;b.textContent='Reset';try{wake&&wake.release()}catch(e){}S=fresh();save();$('grp').value='';render();renderLog();renderSummary();renderPost();toast('Cleared. Ready for a new code')});
+$('bReset').addEventListener('click',()=>{const b=$('bReset');if(!rstH){b.textContent='Tap again to reset';rstH=setTimeout(()=>{rstH=null;b.textContent='Reset'},3000);return}clearTimeout(rstH);rstH=null;b.textContent='Reset';try{wake&&wake.release()}catch(e){}S=fresh();rkey='';save();$('grp').value='';render();renderLog();renderSummary();renderPost();toast('Cleared. Ready for a new code')});
 
 // ---------- auto-suggest ----------
 function suggestions(){
   if(S.phase!=='run')return[];
   const c=codeMs(),t=now(),L=[];
-  if(!S.on&&curPause()>10000)L.push({id:'resume'+S.last,urgent:true,txt:'Resume compressions',sub:'Pause over 10 s',noDone:true});
   const since=S.on?t-(S.lastResume||S.start):0;
-  if(S.on&&since>=120000)L.push({id:'rc'+Math.floor((S.lastResume||S.start)/1000),urgent:true,txt:'2 min: rhythm check',sub:'Charge, pause, switch compressor'+(S.done.airway?' · check EtCO₂ > 10 mmHg':''),noDone:true});
-  const shk=S.shocks.length>0, ns=S.shocks.length;
-  // common
-  if(c>=240000)L.push({id:'ivio',txt:'Start IV / IO access',sub:'4 min into the code',act:'IV/IO access established',flag:'ivio',btn:'IV/IO in'});
+  if(S.on&&since>=120000&&!S.rstage&&S.prompted['rh2-'+(S.lastResume||S.start)]==null){S.rstage='ask';S.rcount++;S.prompted['rh2-'+(S.lastResume||S.start)]=1;save()}
+  if(!S.on&&curPause()>10000)L.push({id:'resume'+S.last,urgent:true,txt:'Resume compressions',sub:'Pause over 10 s',noDone:true});
+  const shk=S.limb==='s', ns=S.shocks.length;
+  if(c>=240000&&!S.done.ivio)L.push({id:'ivio',txt:'Start IV / IO access',sub:'4 min into the code',act:'IV/IO access established',flag:'ivio',btn:'IV/IO in'});
   if(shk){
-    // SHOCKABLE limb (VF / pVT)
+    if(!S.shocks.some(x=>x>=S.limbT))L.push({id:'shocknow'+S.limbT,urgent:true,txt:'Shock now',sub:'Charge and deliver, then resume compressions at once',give:'shock',btn:'Give shock'});
     if(ns>=2&&!S.adr.length)L.push({id:'adrShock',txt:'Give adrenaline 1 mg',sub:'Shockable: after the 2nd shock',give:'adr'});
     if(ns>=2&&!S.done.airway)L.push({id:'airwayS',txt:'Consider advanced airway',sub:'After 2 shocks',act:'Advanced airway secured',flag:'airway',btn:'Airway secured'});
     if(ns>=2)L.push({id:'hstsS',txt:'Discuss 5 Hs and 5 Ts',sub:'Hypovolaemia, Hypoxia, H⁺ acidosis, Hypo/Hyperkalaemia, Hypothermia · Tension pneumothorax, Tamponade, Toxins, Thrombosis (pulmonary, coronary)',act:'5 Hs & 5 Ts discussed'});
     if(ns>=3&&!S.aa.length)L.push({id:'aa1',txt:'Give amiodarone 300 mg',sub:'After the 3rd shock (or lignocaine 1–1.5 mg/kg)',give:'aa'});
     if(ns>=5&&S.aa.length===1)L.push({id:'aa2',txt:'Give amiodarone 150 mg',sub:'After the 5th shock (or lignocaine 0.5–0.75 mg/kg)',give:'aa'});
-  }else{
-    // NON-SHOCKABLE limb (PEA / asystole)
-    if(S.done.ivio&&!S.adr.length)L.push({id:'adr1',txt:'Give adrenaline 1 mg',sub:'Non-shockable: as soon as IV/IO is in',give:'adr'});
+  }else if(S.limb==='n'){
+    if(!S.done.ivio)L.push({id:'ivioN',txt:'Start IV / IO access',sub:'Needed for adrenaline',act:'IV/IO access established',flag:'ivio',btn:'IV/IO in'});
+    if(S.done.ivio&&!S.adr.length)L.push({id:'adr1',txt:'Give adrenaline 1 mg now',sub:'Non-shockable: as soon as possible',give:'adr'});
     if(S.adr.length&&!S.done.airway)L.push({id:'airwayN',txt:'Consider advanced airway',sub:'Adrenaline given',act:'Advanced airway secured',flag:'airway',btn:'Airway secured'});
     if(c>=360000)L.push({id:'hstsN',txt:'Discuss 5 Hs and 5 Ts',sub:'Hypovolaemia, Hypoxia, H⁺ acidosis, Hypo/Hyperkalaemia, Hypothermia · Tension pneumothorax, Tamponade, Toxins, Thrombosis (pulmonary, coronary)',act:'5 Hs & 5 Ts discussed'});
   }
@@ -352,22 +363,48 @@ function suggestions(){
   const seen={};return L.filter(s=>{if(S.done[s.id]||S.skip[s.id]||seen[s.txt])return false;seen[s.txt]=1;return true});
 }
 let shown='';
+function mkItem(s){const d=document.createElement('div');d.className='s-item'+(s.urgent?' urgent':'');
+  const tx=document.createElement('div');tx.className='t';tx.textContent=s.txt;const sm=document.createElement('small');sm.textContent=s.sub;tx.append(sm);d.append(tx);return d}
+function btn(label,cls,fn){const b=document.createElement('button');b.className='sb'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;return b}
 function renderSugg(){
-  const pe=$('path');if(S.phase==='idle'){pe.textContent='';pe.className='path'}else{const shk=S.shocks.length>0;pe.className='path '+(shk?'shk':'nsh');pe.textContent=shk?'Prompts: shockable limb (VF / pVT)':'Prompts: non-shockable limb (PEA / asystole) · switches when a shock is given'}
-  const L=suggestions();const key=L.map(s=>s.id).join('|');
+  const pe=$('path');let lab='';
+  if(S.phase==='run')lab=S.limb==='s'?'Prompts: shockable limb (VF / pVT), shown below the Shock timer':S.limb==='n'?'Prompts: non-shockable limb (PEA / asystole)':'Prompts appear after you analyse the rhythm';
+  if(pe.dataset.l!==lab){pe.dataset.l=lab;pe.innerHTML='';pe.className='path '+(S.limb==='s'?'shk':'nsh');if(lab){const sp=document.createElement('span');sp.textContent=lab;pe.append(sp)}}
+  const L=suggestions();curL=L;
+  const rk=S.phase==='run'&&S.rstage?'rh'+S.rcount+S.rstage:'';
+  const key=rk+'#'+(S.limb||'')+'#'+L.map(s=>s.id).join('|');
   if(key===shown)return;
   const nw=L.filter(s=>!S.prompted[s.id]);
-  if(nw.length){nw.forEach(s=>S.prompted[s.id]=1);beep(nw.some(s=>s.urgent)?660:880,nw.some(s=>s.urgent)?3:2);buzz([150,80,150]);nw.forEach(s=>log('Prompt: '+s.txt,''))}
-  shown=key;const box=$('sugg');box.innerHTML='';
-  L.forEach(s=>{const d=document.createElement('div');d.className='s-item'+(s.urgent?' urgent':'');
-    const tx=document.createElement('div');tx.className='t';tx.textContent=s.txt;const sm=document.createElement('small');sm.textContent=s.sub;tx.append(sm);d.append(tx);
-    if(s.choices){s.choices.forEach(ch=>{const b=document.createElement('button');b.className='sb do';b.textContent=ch.label;b.onclick=()=>{S.done[s.id]=1;log(ch.act,ch.tip?'r-bad':'');save();if(ch.tip)toast(ch.tip);shown='';renderSugg()};d.append(b)})}
-    else if(!s.noDone){const b=document.createElement('button');b.className='sb do';b.textContent=s.give?'Give drug':(s.btn||'Done');
-      b.onclick=()=>{if(s.give){if(s.give==='aa')$('aaSel').value=s.txt.includes('150')?'Amiodarone 150 mg':'Amiodarone 300 mg';S.done[s.id]=1;give(s.give)}else{S.done[s.id]=1;if(s.flag)S.done[s.flag]=1;log(s.act,'');save()}shown='';renderSugg()};d.append(b)}
-    const k=document.createElement('button');k.className='sb';k.textContent=s.noDone?'OK':'Skip';
-    k.onclick=()=>{S.skip[s.id]=1;save();shown='';renderSugg()};d.append(k);box.append(d)});
+  const rNew=rk&&!S.prompted[rk];
+  if(nw.length||rNew){nw.forEach(s=>S.prompted[s.id]=1);if(rNew)S.prompted[rk]=1;const urg=rNew||nw.some(s=>s.urgent);beep(urg?660:880,urg?3:2);buzz([150,80,150]);if(rNew&&S.rstage==='ask')log('Prompt: Analyse rhythm ('+S.rcount+')','');nw.forEach(s=>log('Prompt: '+s.txt,''));save()}
+  shown=key;
+  // limb zones
+  const top=$('sugg'),bot=$('suggS');top.innerHTML='';bot.innerHTML='';const box=S.limb==='s'?bot:top;
+  L.forEach(s=>{const d=mkItem(s);
+    if(s.choices){s.choices.forEach(ch=>d.append(btn(ch.label,'do',()=>{S.done[s.id]=1;log(ch.act,ch.tip?'r-bad':'');save();if(ch.tip)toast(ch.tip);shown='';renderSugg()})))}
+    else if(!s.noDone){d.append(btn(s.btn||(s.give?'Give drug':'Done'),'do',()=>{if(s.give){if(s.give==='aa')$('aaSel').value=s.txt.includes('150')?'Amiodarone 150 mg':'Amiodarone 300 mg';S.done[s.id]=1;give(s.give)}else{S.done[s.id]=1;if(s.flag)S.done[s.flag]=1;log(s.act,'');save()}shown='';renderSugg()}))}
+    d.append(btn(s.noDone?'OK':'Skip','',()=>{S.skip[s.id]=1;save();shown='';renderSugg()}));box.append(d)});
 }
 
+let rkey='';
+function renderRhythm(){
+  const st=S.phase!=='run'?'off':S.rstage||'idle';const k=st+S.rcount;if(k===rkey)return;rkey=k;
+  const bx=$('rbox');bx.innerHTML='';const mk=(cls,main,sub,fn)=>{const b=document.createElement('button');b.className='rb '+cls;b.textContent=main;if(sub){const sm=document.createElement('small');sm.textContent=sub;b.append(sm)}b.onclick=fn;bx.append(b);return b};
+  if(st==='off'){mk('rb-an','Analyse rhythm','',null).disabled=true}
+  else if(st==='idle')mk('rb-an','Analyse rhythm','tap at each rhythm check',analyse);
+  else if(st==='ask')mk('rb-due flash','Analyse rhythm',S.rcount>1?'2 min: check '+S.rcount+(S.done.airway?' · EtCO₂ > 10':''):'first rhythm check',analyse);
+  else if(st==='pause')mk('rb-ho flash','Hands off · switch roles','new compressor takes over · tap to pause',()=>pauseNow('rhythm analysis · hands off, roles switched'));
+  else{mk('rb-s','Shockable','VF / pVT',()=>chooseRhythm(true));mk('rb-n','Non-shockable','PEA / asystole',()=>chooseRhythm(false))}
+}
+let curL=[];
+function highlightActions(){
+  const run=S.phase==='run',has=g=>run&&curL.some(x=>x.give===g);
+  const sh=has('shock'),ad=has('adr'),aa=has('aa'),iv=run&&curL.some(x=>x.id==='ivio'||x.id==='ivioN');
+  $('gShock').classList.toggle('urge',sh);$('dShock').classList.toggle('hl',sh);$('gShock').textContent=sh?'Shock now':'Give shock';
+  $('gAdr').classList.toggle('urge',ad);$('dAdr').classList.toggle('hl',ad);$('gAdr').textContent=ad?'Give now':'Give drug';
+  $('gAa').classList.toggle('urge',aa);$('dAa').classList.toggle('hl',aa);$('gAa').textContent=aa?'Give now':'Give drug';
+  $('ivYes').classList.toggle('urge',iv&&!S.done.ivio);
+}
 // ---------- render ----------
 function since(arr,el,meta,unit){const v=$(el);if(!arr.length){v.textContent='—';return null}const last=arr[arr.length-1];const lt=typeof last==='object'?last.t:last;const s=T()-lt;v.textContent=fmt(s);return s}
 function render(){
@@ -387,14 +424,14 @@ function render(){
   $('sComp').textContent=S.phase==='run'?(S.on?'running':'stopped (paused)'):'total';
   $('cComp').className='card'+(S.phase==='run'&&S.on?' live-on':'');
   $('cPause').className='card'+(S.phase==='run'&&!S.on?' live-off'+(cp>10000?' flash':''):'');
-  const tg=$('bToggle');tg.disabled=S.phase!=='run';tg.className='toggle '+(S.on?'t-on':'t-off');tg.textContent=S.phase!=='run'?'Pause compressions':S.on?'Pause compressions':'Resume compressions';
-  ['gShock','gAdr','gAa'].forEach(id=>$(id).disabled=S.phase!=='run');
+  const tg=$('bToggle');tg.disabled=S.phase!=='run';const lastShock=S.shocks.length?S.shocks[S.shocks.length-1]:0;const urge=S.phase==='run'&&!S.on&&((lastShock&&lastShock>=S.last)||(S.limb==='n'&&S.limbT>=S.last));tg.className='toggle '+(S.on?'t-on':'t-off')+(urge?' urge':'');tg.textContent=S.phase!=='run'?'Pause compressions':S.on?'Pause compressions':urge?'Resume compressions now':'Resume compressions';
+  ['gAdr','gAa'].forEach(id=>$(id).disabled=S.phase!=='run');$('gShock').disabled=S.phase!=='run'||S.limb!=='s';renderRhythm();
   since(S.shocks,'vShock');$('mShock').textContent=S.shocks.length+' given'+(S.shocks.length?' · since last':'');
   const sa=since(S.adr,'vAdr');const dA=$('dAdr');dA.classList.remove('due','over');
   if(sa!=null&&S.phase==='run'){if(sa>=300000)dA.classList.add('over');else if(sa>=180000)dA.classList.add('due')}
   $('mAdr').textContent=S.adr.length+' given · '+(sa==null?'every 3–5 min':sa>=300000&&S.phase==='run'?'overdue':sa>=180000&&S.phase==='run'?'due now':'since last');
   since(S.aa,'vAa');$('mAa').textContent=S.aa.length+' given'+(S.aa.length?' · last: '+S.aa[S.aa.length-1].v:'');
-  renderSugg();
+  renderSugg();renderRhythm();highlightActions();
 }
 function renderLog(){
   const tb=$('tb');tb.innerHTML='';
@@ -405,7 +442,7 @@ function renderLog(){
 function times(arr,f){return arr.length?arr.map(x=>fmt((typeof x==='object'?x.t:x)-S.start)+(f?' ('+f(x)+')':'')).join(', '):'none'}
 function summaryRows(){
   const c=ccf();const longest=S.pauses.length?Math.max(...S.pauses):0;
-  return[['Group',S.grp||'—'],['Outcome',S.rosc?'ROSC at '+fmt(S.rosc-S.start):S.phase==='end'?'Code ended without ROSC':'Running'],['IV/IO access',S.done.ivio?'In place':'Not in place'],['Rhythm limb',S.shocks.length?'Shockable (VF / pVT)':'Non-shockable (PEA / asystole)'],['Started',S.start?new Date(S.start).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'—'],['Code time',fmt(codeMs())],['Compression time',fmt(compMs())],['Pause time',sec(pauseMs())+' s in '+S.pauses.length+' pauses'],['Longest pause',sec(longest)+' s'],['Pauses over 10 s',S.pauses.filter(p=>p>10000).length],['CCF',c==null?'—':Math.round(c)+'%'],['Shocks ('+S.shocks.length+') at',times(S.shocks)],['Adrenaline ('+S.adr.length+') at',times(S.adr)],['Amiodarone / Lignocaine ('+S.aa.length+') at',times(S.aa,x=>x.v)],...(S.rosc?[['Responds to commands',S.neuro?S.neuro.toUpperCase():'not checked'],['Post-ROSC steps done',POST.concat(EXTRA.map(e=>[e[0],'',e[1]])).flatMap(g=>g[2].filter(i=>S.post[i[0]]).map(i=>g[0]+': '+i[1]+' (+'+fmt(S.post[i[0]]-S.rosc)+')')).join('; ')||'none yet']]:[])];
+  return[['Group',S.grp||'—'],['Outcome',S.rosc?'ROSC at '+fmt(S.rosc-S.start):S.phase==='end'?'Code ended without ROSC':'Running'],['IV/IO access',S.done.ivio?'In place':'Not in place'],['Rhythm limb (last analysis)',S.limb==='s'?'Shockable (VF / pVT)':S.limb==='n'?'Non-shockable (PEA / asystole)':'Not analysed'],['Rhythm analyses',S.rcount],['Started',S.start?new Date(S.start).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'—'],['Code time',fmt(codeMs())],['Compression time',fmt(compMs())],['Pause time',sec(pauseMs())+' s in '+S.pauses.length+' pauses'],['Longest pause',sec(longest)+' s'],['Pauses over 10 s',S.pauses.filter(p=>p>10000).length],['CCF',c==null?'—':Math.round(c)+'%'],['Shocks ('+S.shocks.length+') at',times(S.shocks)],['Adrenaline ('+S.adr.length+') at',times(S.adr)],['Amiodarone / Lignocaine ('+S.aa.length+') at',times(S.aa,x=>x.v)],...(S.rosc?[['Follows commands',S.neuro==='yes'?'Yes':S.neuro==='no'?'No or unsure':'not checked'],['Post-ROSC steps done',POST.concat(EXTRA.map(e=>[e[0],'',e[1]])).flatMap(g=>g[2].filter(i=>S.post[i[0]]).map(i=>i[1]+' (+'+fmt(S.post[i[0]]-S.rosc)+')')).join('; ')||'none yet']]:[])];
 }
 function renderSummary(){
   if(S.phase!=='end'){$('sumBox').style.display='none';return}
